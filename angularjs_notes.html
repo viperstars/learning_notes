@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myapp"><!-- 通过 ng-app 指定 angularjs app 边界 -->
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script><!-- 加载 jquery -->
+    <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script><!-- 加载 jqueryui -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.27/angular.min.js"></script><!-- 加载 angularjs, 如果 angularjs 会调用 jquery 插件, angularjs 需要放在 jquery 插件之后加载 -->
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css"><!-- 加载 jquery css -->
+</head>
+<body>
+<hr>
+<div ng-controller="controller0"> <!-- 指定 controller 的边界 -->
+    <p>{{ text }}</p> <!-- 在此边界内可以访问 $scope 放置的对象, {{}} 用于显示对象的值 -->
+</div>
+<hr>
+<div ng-controller="controller1">
+    <p>{{ text }}</p>
+</div>
+<hr>
+<div ng-controller="controller2">
+    <p ng-bind="message.text"></p> <!-- 在显示对象的值时, 可以使用 {{}}, 也可以使用 ng-bind, 建议使用后者, 前者在网络加载的时候会显示出 '{{ text }}', 体验不佳 -->
+</div>
+<hr>
+<div ng-controller="controller3">
+    <button ng-click="click_func()">Click</button>  <!-- 在此边界内可以访问 $scope 放置的函数对象, 并绑定至事件 -->
+</div>
+<hr>
+<div ng-controller="controller4">
+    <input name="username" ng-model="data.username" /> <!-- 通过 ng-model 建立 input value 和 $scope 中对象的双向绑定 -->
+    <p ng-bind="data.username"></p>
+    <input type="password" name="password" ng-model="data.password" />
+    <p ng-bind="data.password"></p>
+</div>
+<hr>
+<div ng-controller="controller5"> <!-- 在 controller 嵌套的情况下, 内层 controller 可以访问外层的 $scope -->
+    <p>outer {{ outer }}</p>
+    <div ng-controller="controller6">
+        <p>inner {{ inner }}</p>
+        <p>inner {{ $parent.outer }}</p> <!-- 通过 $parent 访问外层 $scope -->
+    </div>
+</div>
+<hr>
+<div ng-controller="controller7">
+    <p>outer {{ outer }}</p>
+    <p>outer_inner {{ inner }}</p>
+    <div ng-controller="controller8">
+        <p>inner {{ inner }}</p>
+        <p>inner {{ $parent.outer }}</p>
+    </div>
+</div>
+<div ng-controller="controller9">
+    <input name="price" ng-model="price" />
+    <input name="amount" ng-model="amount" ng-change="calc()" />
+    <p>Total: {{ total }}</p>
+</div>
+<hr>
+<div ng-controller="controller10">
+    <input name="price" ng-model="price" />
+    <input name="amount" ng-model="amount" />
+    <p>Total: {{ total }}</p>
+</div>
+<hr>
+<div d1></div>
+<hr>
+<div ng-controller="controller11">
+    <div d2></div>
+    <div d3></div>
+</div>
+<hr>
+<div ng-controller="controller12">
+    <div d4></div>
+</div>
+<hr>
+<div ng-controller="controller13">
+    <div d5 a="{{ data }}"></div>
+    <div d6 a="data"></div>
+    <div d7 a="f(t)"></div>
+    <div d8 a="f('d8')"></div>
+</div>
+<hr>
+<div>
+    <div d9 d10>This is d10</div>
+    <div d9 d11>This is d11</div>
+</div>
+<hr>
+<div ng-controller="controller13">
+    <input id="datepicker" datepicker ng-model="current_date" select="update_my_text(date)" />
+    <p>{{ text }} - {{ current_date }}</p>
+</div>
+<script>
+    function controller0($scope) { // 可以通过这种方式定义 controller
+        $scope.text = 'Hello';
+    }
+    var myapp = angular.module('myapp', []); // 定义 angular 的 module, app name 与 html 标签中定义的一致
+    myapp.controller('controller1', function ($scope) {
+        $scope.text = 'Hello'; // $scope 是当前 controller 的上下文, 可以理解为一个容器, 用来放置任意对象
+    });
+    myapp.controller('controller2', function ($scope) {
+        $scope.message = {text: 'Hello'}; // 通过 $scope 放置变量时建议使用此方式, 放置一个对象
+        // $scope.message.text = 'Hello';
+    });
+    myapp.controller('controller3', function ($scope) {
+        $scope.click_func = function () { // $scope 也可以放置函数对象
+            alert('Hello');
+        };
+    });
+    myapp.controller('controller4', function ($scope) {
+        $scope.data = {username: 'username', password: 'password'};
+    });
+    myapp.controller('controller5', function ($scope) {
+        $scope.outer = 1;
+    });
+    myapp.controller('controller6', function ($scope) {
+        $scope.inner = 2;
+    });
+    myapp.controller('controller7', function ($scope) {
+        $scope.outer = 1;
+        $scope.inner = 1;
+        $scope.obj = {inner: 4}
+    });
+    myapp.controller('controller8', function ($scope) {
+        $scope.inner = 2; // 外层 controller 的值会覆盖内层 controller 的值
+        $scope.$parent.outer = 3;// 内层 controller 可以通过此方式修改外层 controller 的值
+        $scope.obj = {inner: 5}
+        // JavaScript对象要么是值复制要么是引用复制, 字符串、数字和布尔型变量是值复制。数组、对象和函数则是引用复制。
+    });
+    myapp.controller('controller9', function ($scope) {
+        $scope.price = 0;
+        $scope.amount = 0;
+        $scope.total = 0;
+        $scope.calc = function () {
+            $scope.total = $scope.price * $scope.amount;
+        };
+    });
+    myapp.controller('controller10', function ($scope) {
+        $scope.price = 0;
+        $scope.amount = 0;
+        $scope.total = 0;
+        // 方式1
+        // calc = function () {
+            // $scope.$watch('amount', calc, true);
+        // ;
+        // $scope.$watch('amount', $scope.calc, true); // 在传递函数时, 注意函数的作用域
+        // 方式2
+        $scope.calc = function () {
+            $scope.total = $scope.price * $scope.amount;
+        };
+        $scope.total = $scope.price * $scope.amount;
+        // $watch 可以检测对象的变化, 在对象发生变化后执行函数, 第三个参数表示是否进行深度检测, 即是否检测对象中引用的对象是否变化
+        // $watch 用于如果作用域中有部分对象变化后, 导致其他变量在逻辑上应该发生变化, 但是实际未发生变化时使用
+        // 由于 total = price * amount, 在 amount 变化后 total 应该发生变化, 但是此时 total 的值并未变化, 所以通过 $watch 检测 amount 的变化, 来保证 total 的值总是正确的
+    });
+    myapp.directive('d1', function () {
+        return {
+            restrict: "A",
+            template: '<div>This is d1.</div>',
+            replace: true
+        }
+    });
+    myapp.controller('controller11', function ($scope) {
+        $scope.data = 1
+    });
+    myapp.directive('d2', function () {
+        return {
+            restrict: "A",
+            template: '<div>This is {{ data }} in d2.</div>', // 指令中可以访问对应 controller 中的值
+            replace: true
+        }
+    });
+    myapp.directive('d3', function () {
+        return {
+            restrict: "A",
+            template: '<div>This is {{ data }} in d3.</div>', // 指令中可以访问对应 controller 中的值
+            replace: true
+        }
+    });
+    myapp.controller('controller12', function ($scope) {
+        $scope.data = 1
+    });
+    myapp.directive('d4', function () {
+        return {
+            restrict: "A",
+            template: '<div>This is {{ data }} in d4.</div>',
+            replace: true,
+            scope: {} // 可以在指令中创建独立作用域, 此时 controller 中 $scope 无法访问
+        }
+    });
+    myapp.controller('controller13', function ($scope) {
+        $scope.data = 1;
+        $scope.f = function (text) {
+            console.log('This is in ' + text );
+        };
+    });
+    myapp.directive('d5', function () {
+        return {
+            restrict: "A",
+            template: '<div>This is {{ a }} in d5.</div>',
+            replace: true,
+            scope: {
+                a: '@a' // 传递一个值到独立 scope 中
+            }
+        }
+    });
+    myapp.directive('d6', function () {
+        return {
+            restrict: "A",
+            template: '<div>This is {{ a }} in d6.</div>',
+            replace: true,
+            scope: {
+                a: '=a' // 与 controller 的 $scope 中的对象进行双向绑定
+            }
+        }
+    });
+    myapp.directive('d7', function () {
+        return {
+            restrict: "A",
+            template: '<div>Check the console.</div>',
+            replace: true,
+            scope: {
+                a: '&a' // 传递一个函数到独立 scope 中
+            },
+            link: function (scope, element, attrs){
+                scope.a({t: 'd7'}); // 传递和调用函数方式1
+            }
+        }
+    });
+    myapp.directive('d8', function () {
+        return {
+            restrict: "A",
+            template: '<div>Check the console when mouseenter.</div>',
+            replace: true,
+            link: function (scope, element, attrs){
+                element.bind('mouseenter', function (){
+                    scope.$apply(attrs.a); // 传递和调用函数方式2
+                })
+            }
+        }
+    });
+    myapp.directive('d9', function () {
+        return {
+            restrict: "A",
+            scope: {},
+            controller: function ($scope){ // 父指令中的 controller 用于暴露给子指令
+                $scope.data = [];
+                this.add_one = function (t) {
+                    $scope.data.push(t);
+                };
+                this.add_two = function (t) {
+                    $scope.data.push(t);
+                    $scope.data.push(t);
+                }
+            },
+            link: function (scope, element, attrs){
+                element.bind('mouseenter', function (){
+                    console.log(scope.data);
+                })
+            }
+        }
+    });
+    myapp.directive('d10', function () {
+        return {
+            require: '^d9',
+            link: function (scope, element, attrs, d9){ // 会先调用子指令中的 link 函数
+                d9.add_one('d10');
+            }
+        }
+    });
+    myapp.directive('d11', function () {
+        return {
+            require: '^d9',
+            link: function (scope, element, attrs, d9){
+                d9.add_two('d11');
+            }
+        }
+    });
+    myapp.controller('controller13', function ($scope) {
+        $scope.text = 'Not selected';
+        $scope.current_date = '';
+        $scope.update_my_text = function (){
+            $scope.text = 'Selected';
+        };
+    });
+    myapp.directive('datepicker', function () {
+        return {
+            restrict: "A",
+            require: '^ngModel', // 依赖 ngModel
+            scope: {
+                select: '&'
+            },
+            // angular pipelines
+            // $modelValue <- $parsers <- $viewValue <- $setViewValue
+            // $modelValue -> $formatters -> $viewValue -> $render
+            link: function (scope, element, attrs, ngModel) {
+                if (!ngModel) return;
+                var options = {};
+                options.dateFormat = 'mm/dd/yy';
+                var update_model = function (date) { // 定义 update_model 函数
+                    scope.$apply(function (){
+                        ngModel.$setViewValue(date); // 设定 Model 的值为 View 中的 value
+                    });
+                    console.log(scope.current_date);
+                };
+                options.onSelect = function (date, picker){ // 指定 jquery datepicker 的 onSelect 函数
+                    update_model(date); // 执行 update_model 函数
+                    if (scope.select) {
+                        scope.$apply(function () {
+                            scope.select({date: date}); // 执行从 controller 中传递的 select 函数
+                        });
+                    }
+                };
+                ngModel.$render = function (){ // 获取 Model 的值并传递给 datepicker
+                    element.datepicker('setDate', ngModel.$viewValue || '');
+                };
+                element.datepicker(options); // 调用 datepicker 方法
+                // 在调用 datepicker 方法之前做了修改了两个回调函数
+                // 1, 在通过 datepicker 选定日期之后, 将选定的日期同步至 Model
+                // 2, 在 Model 的值变化后, 将变化后的值传递给 datepicker
+            }
+        }
+    })
+    myapp.controller('controller14', function ($scope, $q) {
+	   var deffered = $q.defer();
+	   var fetch_user = function () {
+	       deffered.resolve(); // 正常的情况下调用
+		   deffered.reject(); // 失败的情况下调用
+	   }
+	   deffered.promise.then(fetch_user, 
+	   function (error_reason) {
+	       // 错误处理函数
+	   });
+	});
+	myapp.controller('controller15', function ($scope) {
+		$scope.data = {a: 'a', b: 'b'}
+	    $scope.$emit('event1', $scope.data.a, $scope.data.b); // 向上传播
+		$scope.$broadcast('event1', $scope.data.a, $scope.data.b); // 向下传播
+	});
+	myapp.controller('controller16', function ($scope) {
+	    $scope.$on('event1', function (event, a, b) { // $emit 和 $broadcast 的参数会传递给回调函数
+		    event.stopPropagation() // 停止向下传播
+		    console.log(a);
+			console.log(b);
+		};
+	});
+</script>
+</body>
+</html>
